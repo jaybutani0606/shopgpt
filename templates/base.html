@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}ShopGPT — AI-Powered Shopping{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}ShopGPT is your AI shopping assistant — discover, compare, and buy smarter.{% endblock %}" />
+  <!-- SEO -->
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="{% block og_title %}ShopGPT — AI Shopping{% endblock %}" />
+  <meta property="og:description" content="Compare prices across top platforms with AI-powered deal scoring." />
+  <meta property="og:type" content="website" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{{ request.COOKIES.theme|default:'dark' }}">
+  <!-- Animated background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Navigation -->
+  <header class="navbar" role="banner">
+    <div class="container navbar-inner">
+      <!-- Logo -->
+      <a href="{% url 'home' %}" class="logo" aria-label="ShopGPT Home">
+        <span class="logo-icon" aria-hidden="true">🛍️</span>
+        <span class="logo-text">Shop<span class="logo-accent">GPT</span></span>
+      </a>
+
+      <!-- Mobile toggle -->
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+
+      <!-- Nav links -->
+      <nav class="nav-links" aria-label="Main navigation">
+        <form method="post" action="{% url 'set_theme' %}" style="display:inline">
+          {% csrf_token %}
+          <input type="hidden" name="theme" value="{% if request.COOKIES.theme == 'light' %}dark{% else %}light{% endif %}" />
+          <input type="hidden" name="next" value="{{ request.path }}" />
+          <button type="submit" class="btn btn-ghost btn-sm" aria-label="Toggle theme" style="margin-right:0.5rem">
+            {% if request.COOKIES.theme == 'light' %}🌙 Dark{% else %}☀️ Light{% endif %}
+          </button>
+        </form>
+        {% if user.is_authenticated %}
+          <a href="{% url 'products:history' %}" class="btn btn-ghost btn-sm">📜 History</a>
+          <a href="{% url 'analytics:dashboard' %}" class="btn btn-ghost btn-sm">📊 Analytics</a>
+          <span class="nav-greeting" style="margin-left: 0.25rem;">Hi, <strong>{{ user.username }}</strong></span>
+          <form method="post" action="/accounts/logout/" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline btn-sm">Log Out</button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="btn btn-ghost btn-sm">Log In</a>
+          <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-sm">Get Started</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main id="main-content" role="main">
+    {% if messages %}
+      <div class="messages-container" aria-live="polite">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}" role="alert">
+            <span class="alert-icon">{% if message.tags == 'error' %}⚠️{% elif message.tags == 'success' %}✅{% else %}ℹ️{% endif %}</span>
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer-inner">
+      <p class="footer-brand">
+        <span aria-hidden="true">🛍️</span> ShopGPT &copy; 2025 — AI-Powered Shopping
+      </p>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="{% url 'home' %}">Home</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'products:history' %}">History</a>
+          <a href="{% url 'analytics:dashboard' %}">Analytics</a>
+        {% endif %}
+        <a href="/accounts/password-reset/">Reset Password</a>
+        <a href="/health/">Status</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Toast container -->
+  {% include "partials/toast.html" %}
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

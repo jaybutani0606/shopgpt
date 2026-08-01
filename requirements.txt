@@ -1,0 +1,14 @@
+Django==5.2.14
+pandas==2.3.3
+scikit-learn==1.9.0
+matplotlib==3.10.9
+seaborn==0.13.2
+plotly==6.8.0
+python-dotenv==1.0.1
+requests==2.32.3
+beautifulsoup4==4.12.3
+lxml>=5.2.2
+celery==5.3.6
+redis==5.0.4
+django-celery-results==2.5.1
+joblib==1.5.3

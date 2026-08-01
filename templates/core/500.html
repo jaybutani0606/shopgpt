@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}500 — Server Error | ShopGPT{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card fade-in" style="text-align:center; max-width:520px;">
+    <div style="font-size:5rem; margin-bottom:1rem; line-height:1; color:var(--danger);">500</div>
+    <h1 style="font-size:1.75rem; margin-bottom:0.75rem;">Something went wrong</h1>
+    <p class="text-muted" style="margin-bottom:2rem; font-size:0.95rem;">
+      An unexpected error occurred on our side. Our team has been notified. Please try again in a moment.
+    </p>
+    <div class="flex flex-col gap-3">
+      <a href="{% url 'home' %}" class="btn btn-primary btn-lg">🏠 Go Home</a>
+      <a href="javascript:location.reload()" class="btn btn-outline">↺ Try Again</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

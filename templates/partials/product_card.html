@@ -1,0 +1,31 @@
+<div class="product-card fade-in-scroll">
+  {% if product.image_url %}
+    <div class="product-card__image">
+      <img src="{{ product.image_url }}" alt="{{ product.title }}" loading="lazy" onerror="this.parentElement.innerHTML='<span style=\'font-size:2.5rem;\'>🛍️</span>'" />
+    </div>
+  {% else %}
+    <div class="product-card__image" style="background:var(--bg-input); color:var(--text-dim);">
+      <span style="font-size:2.5rem;">🛍️</span>
+    </div>
+  {% endif %}
+  <div class="product-card__body">
+    <span class="platform-badge">{{ product.platform|capfirst }}</span>
+    <h3 class="product-card__title" title="{{ product.title }}">{{ product.title }}</h3>
+    {% if product.rating %}
+      <div class="star-rating">★ {{ product.rating }}</div>
+    {% endif %}
+    {% if product.fetched_at %}
+      <div style="font-size:0.75rem; color:var(--text-dim);">Data as of {{ product.fetched_at|timesince }} ago</div>
+    {% endif %}
+    <div class="product-card__footer">
+      <div>
+        {% if product.price %}
+          <div class="product-card__price">{{ product.price_str|default:product.price }}</div>
+        {% else %}
+          <span class="text-muted text-sm">Price unavailable</span>
+        {% endif %}
+      </div>
+      <a href="{{ product.product_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">Buy Now →</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Search History — ShopGPT{% endblock %}
+{% block meta_description %}Review your past product searches and quickly revisit results and recommendations.{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+
+  <!-- ── Page Header ─────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header__inner">
+      <div>
+        <h1 class="page-header__title">📜 Search History</h1>
+        <p class="page-header__subtitle">Revisit your past searches and jump straight to results or AI recommendations.</p>
+      </div>
+      <div class="page-header__actions">
+        <a href="{% url 'home' %}" class="btn btn-primary">🔍 New Search</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── History List ────────────────────────────────────── -->
+  <div class="card" style="padding: 0;">
+    {% if object_list %}
+      <div style="padding: 0.5rem 0;">
+        {% for query in object_list %}
+          <div class="history-item" style="padding: 1.25rem 1.75rem; gap: 1rem;">
+            <!-- Query info -->
+            <div style="flex: 1; min-width: 0;">
+              <a href="{% url 'products:results' query.id %}" class="history-item__query">
+                {{ query.query }}
+              </a>
+              <div class="history-item__meta">
+                🕒 {{ query.timestamp|date:"M d, Y • H:i" }}
+                &nbsp;·&nbsp;
+                <span class="badge badge-muted">{{ query.result_count }} result{{ query.result_count|pluralize }}</span>
+                &nbsp;·&nbsp;
+                {% if query.status == 'completed' %}
+                  <span class="badge badge-success">✓ Completed</span>
+                {% elif query.status == 'pending' %}
+                  <span class="badge badge-warning">⏳ Pending</span>
+                {% else %}
+                  <span class="badge badge-danger">✗ Failed</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2 flex-shrink-0">
+              <a href="{% url 'products:results' query.id %}" class="btn btn-outline btn-sm">
+                Results
+              </a>
+              <a href="{% url 'products:compare' query.id %}" class="btn btn-ghost btn-sm">
+                Compare
+              </a>
+              <a href="{% url 'products:recommendations' query.id %}" class="btn btn-primary btn-sm">
+                🤖 AI
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if is_paginated %}
+        <div class="flex justify-center gap-3 items-center" style="padding: 1.5rem; border-top: 1px solid var(--border-color);">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline btn-sm">← Previous</a>
+          {% endif %}
+          <span class="text-muted text-sm">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline btn-sm">Next →</a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    {% else %}
+      {% url 'home' as home_url %}
+      {% include "partials/empty_state.html" with icon="📭" title="No searches yet" desc="You haven't searched for any products yet. Start your first search to see it here!" action_url=home_url action_text="🔍 Start Searching" %}
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

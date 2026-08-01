@@ -1,0 +1,8 @@
+<div class="empty-state">
+  <div class="empty-state__icon">{{ icon|default:'🔍' }}</div>
+  <h2 class="empty-state__title">{{ title|default:'No results found' }}</h2>
+  <p class="empty-state__desc">{{ desc|default:'Try adjusting your search query or filters.' }}</p>
+  {% if action_url %}
+    <a href="{{ action_url }}" class="btn btn-primary">{{ action_text|default:'Go back' }}</a>
+  {% endif %}
+</div>

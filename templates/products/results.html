@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Results for "{{ search.query }}" — ShopGPT{% endblock %}
+{% block meta_description %}Compare real-time prices for {{ search.query }} across Amazon, Flipkart and more.{% endblock %}
+
+{% block content %}
+{% include "partials/guest_limit_banner.html" %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+
+  <!-- ── Page Header ─────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header__inner">
+      <div>
+        <h1 class="page-header__title">
+          Results for <span class="gradient-text">"{{ search.query }}"</span>
+        </h1>
+        <p class="page-header__subtitle">
+          Status:
+          {% if search.status == 'completed' %}
+            <span class="badge badge-success">✓ Completed</span>
+          {% elif search.status == 'pending' %}
+            <span class="badge badge-warning">⏳ Searching…</span>
+          {% else %}
+            <span class="badge badge-danger">✗ Failed</span>
+          {% endif %}
+          &nbsp;
+          <span class="badge badge-muted">{{ search.result_count }} result{{ search.result_count|pluralize }}</span>
+          &nbsp;
+          <span class="badge badge-accent">📍 {{ search.location }}</span>
+        </p>
+      </div>
+      <div class="page-header__actions">
+        <a href="{% url 'products:compare' search.id %}" class="btn btn-outline">
+          📊 Compare
+        </a>
+        <a href="{% url 'products:recommendations' search.id %}" class="btn btn-primary">
+          🤖 AI Picks
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Error Banner ────────────────────────────────────── -->
+  {% if error_message %}
+    <div class="alert alert-error" style="margin-bottom: 2rem;">
+      <span class="alert-icon">⚠️</span>
+      {{ error_message }}
+    </div>
+  {% endif %}
+
+  <!-- ── States ──────────────────────────────────────────── -->
+  {% if search.status == 'pending' %}
+    <!-- LOADING STATE -->
+    <div class="card" data-auto-refresh="3000" style="padding: 0;">
+      {% include "partials/loading_skeleton.html" %}
+      <div style="text-align: center; margin-top: -1.5rem; padding-bottom: 2rem;">
+        <p class="text-muted">We're scanning {{ platforms|join:", "|default:"all platforms" }} in real-time.</p>
+        <p class="text-dim text-sm">This page refreshes automatically.</p>
+      </div>
+    </div>
+
+  {% elif search.status == 'completed' and search.result_count > 0 %}
+    <!-- RESULTS GRID -->
+    <div class="product-grid stagger">
+      {% for product in results %}
+        {% include "partials/product_card.html" with product=product %}
+      {% endfor %}
+    </div>
+
+    <!-- Navigation to next steps -->
+    <div class="flex justify-center gap-4" style="margin-top: 3rem;">
+      <a href="{% url 'products:compare' search.id %}" class="btn btn-outline btn-lg">
+        📊 Compare All Products
+      </a>
+      <a href="{% url 'products:recommendations' search.id %}" class="btn btn-primary btn-lg">
+        🤖 See AI Recommendations
+      </a>
+    </div>
+
+  {% elif search.status == 'completed' %}
+    <!-- NO RESULTS -->
+    <div class="card">
+      {% url 'home' as home_url %}
+      {% include "partials/empty_state.html" with icon="🔍" title="No products found" desc="We couldn't find any products matching your search. Try different keywords or a broader term." action_url=home_url action_text="Try Another Search" %}
+    </div>
+
+  {% else %}
+    <!-- ERROR STATE -->
+    <div class="card">
+      {% url 'home' as home_url %}
+      {% include "partials/empty_state.html" with icon="❌" title="Search Failed" desc=error_message|default:"An error occurred while loading results. Please try again." action_url=home_url action_text="Search Again" %}
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

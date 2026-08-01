@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}ShopGPT — AI-Powered Shopping Assistant{% endblock %}
+{% block meta_description %}Compare prices across Amazon, Flipkart, Croma & more. AI-powered deal scoring and fair price estimation. Shop smarter with ShopGPT.{% endblock %}
+
+{% block content %}
+{% include "partials/guest_limit_banner.html" %}
+
+<div id="loading-overlay" class="hidden container" style="padding: 5rem 0;">
+  {% include "partials/loading_skeleton.html" %}
+</div>
+
+<div id="home-main-content">
+<!-- ═══ HERO SECTION ═══════════════════════════════════════ -->
+<section class="hero">
+  <div class="container">
+    <!-- Eyebrow label -->
+    <div class="hero__eyebrow fade-in">
+      <span>✨</span> AI-Powered Price Intelligence
+    </div>
+
+    <!-- Headline -->
+    <h1 class="hero__title fade-in">
+      Shop Smarter with<br>
+      <span class="gradient-text">Real-Time AI</span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="hero__subtitle fade-in">
+      Search once, compare everywhere. ShopGPT scans top platforms in real-time
+      and uses AI to surface the best deals — so you never overpay.
+    </p>
+
+    <!-- Search bar -->
+    <div class="hero__search fade-in">
+      <form method="post" action="{% url 'products:search' %}" data-search-form>
+        {% csrf_token %}
+        <div class="search-bar-wrap" style="display: flex; align-items: center; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); overflow: hidden; padding: 2px;">
+          <input
+            id="hero-search-input"
+            class="search-bar-input"
+            type="text"
+            name="query"
+            placeholder='Try "iPhone 15 Pro" or "Mechanical Keyboard"…'
+            autocomplete="off"
+            required
+            aria-label="Search for a product"
+            style="flex: 2; border: none; background: transparent; padding: 0.85rem 1.25rem; font-size: 0.95rem; color: var(--text-light); outline: none;"
+          />
+          <div style="width: 1px; height: 2rem; background: var(--border-color);"></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem; padding: 0 0.85rem; flex: 1; min-width: 180px;">
+            <span style="font-size: 1rem; color: var(--text-muted)">📍</span>
+            <input
+              id="hero-location-input"
+              class="search-bar-input"
+              type="text"
+              name="location"
+              placeholder="City name (e.g. Mumbai)"
+              value="Mumbai, India"
+              autocomplete="off"
+              aria-label="Location"
+              style="border: none; background: transparent; font-size: 0.9rem; color: var(--text-light); outline: none; width: 100%;"
+            />
+          </div>
+          <button id="hero-search-btn" type="submit" class="search-bar-btn" style="border-radius: var(--radius-md); padding: 0.85rem 1.75rem; font-weight: 600;">
+            <span>🔍</span>
+            <span>Search</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Popular searches -->
+      <div class="hero__popular" style="margin-top: 1rem;">
+        <span class="hero__popular-label">Popular:</span>
+        {% for q in popular_searches %}
+          <span class="popular-chip" data-query="{{ q }}">{{ q }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- CTA buttons for guests -->
+    {% if not user.is_authenticated %}
+      <div class="flex justify-center gap-4 mt-6 fade-in">
+        <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-lg">
+          🚀 Get Started Free
+        </a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline btn-lg">
+          Log In
+        </a>
+      </div>
+    {% else %}
+      <div class="flex justify-center gap-4 mt-6 fade-in">
+        <a href="{% url 'products:history' %}" class="btn btn-outline btn-lg">
+          📜 My Search History
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ═══ PLATFORM STRIP ════════════════════════════════════ -->
+<section class="platforms-strip">
+  <div class="container">
+    <p class="platforms-strip__label">We compare prices across</p>
+    <div class="platforms-list">
+      {% for platform in platforms %}
+        <span class="platform-name">{{ platform }}</span>
+      {% endfor %}
+      <span class="platform-name text-dim">& more</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ══════════════════════════════════════ -->
+<section class="how-it-works">
+  <div class="container">
+    <h2 class="section-title">How ShopGPT Works</h2>
+    <p class="section-subtitle">Three simple steps to smarter shopping</p>
+
+    <div class="steps-grid stagger">
+      <div class="step-card fade-in-scroll">
+        <span class="step-card__icon">🔍</span>
+        <div class="step-card__number">1</div>
+        <h3 class="step-card__title">Search Any Product</h3>
+        <p class="step-card__desc">Enter a product name, model, or category. Our AI understands natural language queries.</p>
+      </div>
+      <div class="step-card fade-in-scroll">
+        <span class="step-card__icon">⚡</span>
+        <div class="step-card__number">2</div>
+        <h3 class="step-card__title">Real-Time Comparison</h3>
+        <p class="step-card__desc">We scan multiple platforms simultaneously and aggregate live prices and ratings.</p>
+      </div>
+      <div class="step-card fade-in-scroll">
+        <span class="step-card__icon">🤖</span>
+        <div class="step-card__number">3</div>
+        <h3 class="step-card__title">AI Deal Scoring</h3>
+        <p class="step-card__desc">Our ML models estimate fair prices and classify each listing as Great Deal, Fair, or Overpriced.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURE HIGHLIGHTS ══════════════════════════════ -->
+<section style="padding: 3rem 0 5rem;">
+  <div class="container">
+    <h2 class="section-title">Everything You Need</h2>
+    <p class="section-subtitle">Powerful features for intelligent shoppers</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;" class="stagger">
+      <div class="card card-body text-center fade-in-scroll" style="padding: 1.5rem 1rem;">
+        <span style="font-size: 1.75rem; display: block; margin-bottom: 0.5rem;">🏷️</span>
+        <span class="text-sm font-semibold"> Real-Time Prices</span>
+      </div>
+      <div class="card card-body text-center fade-in-scroll" style="padding: 1.5rem 1rem;">
+        <span style="font-size: 1.75rem; display: block; margin-bottom: 0.5rem;">📊</span>
+        <span class="text-sm font-semibold"> Side-by-Side Compare</span>
+      </div>
+      <div class="card card-body text-center fade-in-scroll" style="padding: 1.5rem 1rem;">
+        <span style="font-size: 1.75rem; display: block; margin-bottom: 0.5rem;">🤖</span>
+        <span class="text-sm font-semibold"> AI Fair Price Model</span>
+      </div>
+      <div class="card card-body text-center fade-in-scroll" style="padding: 1.5rem 1rem;">
+        <span style="font-size: 1.75rem; display: block; margin-bottom: 0.5rem;">🟢</span>
+        <span class="text-sm font-semibold"> Deal Quality Badges</span>
+      </div>
+      <div class="card card-body text-center fade-in-scroll" style="padding: 1.5rem 1rem;">
+        <span style="font-size: 1.75rem; display: block; margin-bottom: 0.5rem;">📜</span>
+        <span class="text-sm font-semibold"> Search History</span>
+      </div>
+      <div class="card card-body text-center fade-in-scroll" style="padding: 1.5rem 1rem;">
+        <span style="font-size: 1.75rem; display: block; margin-bottom: 0.5rem;">🔒</span>
+        <span class="text-sm font-semibold"> Secure &amp; Private</span>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}AI Recommendations for "{{ search.query }}" — ShopGPT{% endblock %}
+{% block meta_description %}AI-powered deal recommendations for {{ search.query }} with fair price analysis and deal quality badges.{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+
+  <!-- ── Page Header ─────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header__inner">
+      <div>
+        <h1 class="page-header__title">
+          🤖 AI Picks: <span class="gradient-text">"{{ search.query }}"</span>
+        </h1>
+        <p class="page-header__subtitle">
+          {% if ml_backed %}
+            <span class="badge badge-success">🧠 ML-Ranked</span>
+            &nbsp;Sorted by discount vs estimated fair price
+          {% else %}
+            <span class="badge badge-muted">📋 Price-Ranked</span>
+            &nbsp;Sorted by lowest price (train ML model for AI scoring)
+          {% endif %}
+        </p>
+      </div>
+      <div class="page-header__actions">
+        <a href="{% url 'products:results' search.id %}" class="btn btn-outline">← Results</a>
+        <a href="{% url 'products:compare' search.id %}" class="btn btn-outline">📊 Compare</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Recommendations List ───────────────────────────── -->
+  <div style="display:flex; flex-direction:column; gap:1.5rem;" class="stagger">
+    {% for item in recommendations %}
+      <div class="rec-card fade-in-scroll">
+        <!-- Rank badge -->
+        <div class="rec-rank">#{{ forloop.counter }}</div>
+
+        <!-- Product image -->
+        {% if item.product.image_url %}
+          <div class="rec-card__image">
+            <img
+              src="{{ item.product.image_url }}"
+              alt="{{ item.product.title }}"
+              loading="lazy"
+              onerror="this.parentElement.innerHTML='<span style=\'font-size:2rem;color:var(--text-dim)\'>🛍️</span>'"
+            />
+          </div>
+        {% else %}
+          <div class="rec-card__image" style="background:var(--bg-input); color:var(--text-dim);">
+            <span style="font-size:2rem;">🛍️</span>
+          </div>
+        {% endif %}
+
+        <!-- Content -->
+        <div class="rec-card__content">
+          <!-- Platform + Deal badge row -->
+          <div class="flex items-center gap-3 flex-wrap" style="margin-bottom:0.5rem;">
+            <span class="platform-badge">{{ item.product.platform|capfirst }}</span>
+            {% if item.deal_badge %}
+              <span class="
+                {% if item.deal_quality == 'great_deal' %}deal-badge-great
+                {% elif item.deal_quality == 'overpriced' %}deal-badge-over
+                {% else %}deal-badge-fair{% endif %}
+              ">{{ item.deal_badge }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Title -->
+          <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:0.75rem; line-height:1.4;">
+            {{ item.product.title }}
+          </h2>
+
+          <!-- Price row -->
+          <div class="flex items-center gap-4 flex-wrap" style="margin-bottom:0.75rem;">
+            <div>
+              {% if item.product.price %}
+                <span style="font-size:1.6rem; font-weight:900; letter-spacing:-0.03em; color:var(--text-light);">
+                  {{ item.product.price_str|default:item.product.price }}
+                </span>
+              {% else %}
+                <span class="text-muted">Price unavailable</span>
+              {% endif %}
+            </div>
+            {% if item.product.rating %}
+              <div class="star-rating">★ {{ item.product.rating }}</div>
+            {% endif %}
+            {% if item.fair_price %}
+              <div class="rec-fair-price">
+                💡 Fair price: {{ item.fair_price }}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Reason block -->
+          <div class="rec-reason">
+            <strong style="color:var(--text-light);">Why we recommend this:</strong><br/>
+            {{ item.reason }}
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end" style="margin-top:auto; padding-top:0.75rem;">
+            <a
+              href="{{ item.product.product_url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-primary"
+            >
+              Buy from {{ item.product.platform|capfirst }} →
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="card">
+        {% url 'products:results' search.id as results_url %}
+        {% include "partials/empty_state.html" with icon="🔍" title="No recommendations yet" desc="Ensure the search completed successfully and results contain pricing information." action_url=results_url action_text="View Results" %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── ML Info Notice ─────────────────────────────────── -->
+  {% if not ml_backed %}
+    <div class="alert alert-info" style="margin-top:2.5rem;">
+      <span class="alert-icon">ℹ️</span>
+      <div>
+        <strong>Using price-based ranking.</strong>
+        Train the ML model with <code style="font-family:monospace;background:rgba(255,255,255,0.08);padding:0.1rem 0.3rem;border-radius:3px;">python manage.py train_price_model</code>
+        and <code style="font-family:monospace;background:rgba(255,255,255,0.08);padding:0.1rem 0.3rem;border-radius:3px;">python manage.py train_deal_model</code>
+        to enable AI-powered ranking and deal quality badges.
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

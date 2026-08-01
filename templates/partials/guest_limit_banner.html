@@ -1,0 +1,15 @@
+{% if request.session.show_auth_modal %}
+<div class="alert alert-warning" style="margin-bottom:2rem; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <div style="display:flex; align-items:center; gap:0.75rem;">
+    <span style="font-size:1.5rem;">🚀</span>
+    <div>
+      <strong style="color:var(--text-light);">Guest Search Limit Reached!</strong>
+      <p style="margin:0; font-size:0.875rem; color:var(--text-muted);">Please create a free account to continue searching and viewing analytics.</p>
+    </div>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-sm">Create Account</a>
+    <a href="{% url 'accounts:login' %}" class="btn btn-outline btn-sm">Log In</a>
+  </div>
+</div>
+{% endif %}

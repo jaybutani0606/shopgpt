@@ -1,0 +1,10 @@
+<div class="toast-container" aria-live="polite" aria-atomic="false">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="toast" style="border-left: 3px solid var(--{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %}); background: rgba({% if message.tags == 'error' %}239,68,68{% elif message.tags == 'success' %}16,185,129{% else %}59,130,246{% endif %}, 0.15);" data-auto-dismiss="4000">
+        <span>{% if message.tags == 'error' %}❌{% elif message.tags == 'success' %}✅{% else %}💬{% endif %}</span>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>

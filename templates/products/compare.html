@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Products for "{{ search.query }}" — ShopGPT{% endblock %}
+{% block meta_description %}Side-by-side price and rating comparison for {{ search.query }} across all platforms.{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+
+  <!-- ── Page Header ─────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header__inner">
+      <div>
+        <h1 class="page-header__title">
+          Compare: <span class="gradient-text">"{{ search.query }}"</span>
+        </h1>
+        <p class="page-header__subtitle">
+          <span class="badge badge-accent">{{ results|length }} product{{ results|length|pluralize }}</span>
+          &nbsp;Side-by-side comparison sorted by your preference
+        </p>
+      </div>
+      <div class="page-header__actions">
+        <a href="{% url 'products:results' search.id %}" class="btn btn-outline">
+          ← Results Grid
+        </a>
+        <a href="{% url 'products:recommendations' search.id %}" class="btn btn-primary">
+          🤖 AI Picks
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Sort & Filter Controls ─────────────────────────── -->
+  <div class="flex gap-4 flex-wrap items-center mb-6">
+    <div class="sort-controls" style="margin: 0;">
+      <span class="sort-label">Sort by:</span>
+      <a href="?sort=price&dir=asc{% if selected_platform %}&platform={{ selected_platform }}{% endif %}"  class="sort-btn {% if request.GET.sort == 'price'  and request.GET.dir == 'asc'  %}active{% endif %}">💰 Price ↑</a>
+      <a href="?sort=price&dir=desc{% if selected_platform %}&platform={{ selected_platform }}{% endif %}" class="sort-btn {% if request.GET.sort == 'price'  and request.GET.dir == 'desc' %}active{% endif %}">💰 Price ↓</a>
+      <a href="?sort=rating&dir=desc{% if selected_platform %}&platform={{ selected_platform }}{% endif %}" class="sort-btn {% if request.GET.sort == 'rating' and request.GET.dir == 'desc' %}active{% endif %}">⭐ Rating ↓</a>
+      <a href="?sort=rating&dir=asc{% if selected_platform %}&platform={{ selected_platform }}{% endif %}"  class="sort-btn {% if request.GET.sort == 'rating' and request.GET.dir == 'asc'  %}active{% endif %}">⭐ Rating ↑</a>
+      <a href="?{% if selected_platform %}platform={{ selected_platform }}{% endif %}"                     class="sort-btn {% if not request.GET.sort %}active{% endif %}">📋 Default</a>
+    </div>
+
+    <div class="sort-controls" style="margin: 0;">
+      <span class="sort-label">Platform:</span>
+      <a href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&dir={{ request.GET.dir }}{% endif %}" class="sort-btn {% if not selected_platform %}active{% endif %}">All</a>
+      {% for plat in available_platforms %}
+        <a href="?platform={{ plat }}{% if request.GET.sort %}&sort={{ request.GET.sort }}&dir={{ request.GET.dir }}{% endif %}" class="sort-btn {% if selected_platform == plat %}active{% endif %}">{{ plat|capfirst }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Comparison Table ────────────────────────────────── -->
+  <div class="compare-table-wrap">
+    <table class="compare-table" id="compare-table">
+      <thead>
+        <tr>
+          <th style="width:120px;">Platform</th>
+          <th style="width:80px;">Image</th>
+          <th>Product Title</th>
+          <th style="width:130px;">Price</th>
+          <th style="width:100px;">Rating</th>
+          <th style="width:120px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in results %}
+          <tr>
+            <!-- Platform -->
+            <td>
+              <span class="platform-badge">{{ product.platform|capfirst }}</span>
+            </td>
+
+            <!-- Image -->
+            <td>
+              {% if product.image_url %}
+                <img
+                  src="{{ product.image_url }}"
+                  alt="{{ product.title }}"
+                  loading="lazy"
+                  style="height:52px; max-width:70px; object-fit:contain; background:#fff; border-radius:var(--radius-sm); padding:3px;"
+                  onerror="this.style.display='none'"
+                />
+              {% else %}
+                <span class="text-dim">—</span>
+              {% endif %}
+            </td>
+
+            <!-- Title -->
+            <td>
+              <span
+                class="truncate"
+                style="display:block; max-width:340px; font-weight:500; font-size:0.9rem;"
+                title="{{ product.title }}"
+              >
+                {{ product.title }}
+              </span>
+            </td>
+
+            <!-- Price -->
+            <td>
+              {% if product.price %}
+                <span style="font-size:1.1rem; font-weight:800; color:var(--text-light); letter-spacing:-0.02em;">
+                  {{ product.price_str|default:product.price }}
+                </span>
+              {% else %}
+                <span class="text-dim">Unavailable</span>
+              {% endif %}
+            </td>
+
+            <!-- Rating -->
+            <td>
+              {% if product.rating %}
+                <span class="star-rating">★ {{ product.rating }}</span>
+              {% else %}
+                <span class="text-dim">—</span>
+              {% endif %}
+            </td>
+
+            <!-- Action -->
+            <td>
+              <a
+                href="{{ product.product_url }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-outline btn-sm"
+              >
+                Visit →
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" style="padding:3rem; text-align:center; color:var(--text-muted);">
+              No products found for this search.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Summary Stats ───────────────────────────────────── -->
+  {% if results %}
+    <div class="stat-grid" style="margin-top: 2rem;">
+      <div class="stat-card">
+        <div class="stat-card__value">{{ results|length }}</div>
+        <div class="stat-card__label">Products Found</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value">
+          {{ results|length|default:"—" }}
+        </div>
+        <div class="stat-card__label">Platforms</div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Highlight lowest-price row
+  (function() {
+    const rows = document.querySelectorAll('#compare-table tbody tr');
+    let minPrice = Infinity;
+    let minRow = null;
+
+    rows.forEach(row => {
+      const priceEl = row.querySelector('td:nth-child(4) span[style*="font-size"]');
+      if (!priceEl) return;
+      const text = priceEl.textContent.replace(/[^\d.]/g, '');
+      const price = parseFloat(text);
+      if (!isNaN(price) && price < minPrice) {
+        minPrice = price;
+        minRow = row;
+      }
+    });
+
+    if (minRow) {
+      minRow.style.background = 'rgba(16, 185, 129, 0.05)';
+      minRow.style.borderLeft = '3px solid var(--success)';
+      const priceCell = minRow.querySelector('td:nth-child(4)');
+      if (priceCell) {
+        const badge = document.createElement('span');
+        badge.className = 'badge badge-success';
+        badge.style.marginLeft = '0.5rem';
+        badge.style.display = 'inline-block';
+        badge.textContent = '✓ Best Price';
+        priceCell.appendChild(badge);
+      }
+    }
+  })();
+</script>
+{% endblock %}

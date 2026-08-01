@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Log In — ShopGPT{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card fade-in">
+    <div class="auth-card__logo">
+      <span style="font-size:2.5rem">🛍️</span>
+    </div>
+    <h1 class="auth-card__title">Welcome back</h1>
+    <p class="auth-card__subtitle">Log in to your ShopGPT account</p>
+
+    <form method="post" action="{% url 'accounts:login' %}">
+      {% csrf_token %}
+      {% include "partials/form_field.html" with label="Username" id="id_username" type="text" name="username" value=form.username.value placeholder="your_username" required=True errors=form.username.errors attrs='autocomplete="username"' %}
+      {% include "partials/form_field.html" with label="Password" id="id_password" type="password" name="password" placeholder="••••••••" required=True errors=form.password.errors attrs='autocomplete="current-password"' %}
+      {% if form.non_field_errors %}
+        <div class="form-error" style="margin-top:0.5rem">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+      <button id="login-submit" type="submit" class="btn btn-primary btn-full btn-lg">Log In</button>
+    </form>
+
+    <div class="auth-divider">or</div>
+
+    <div style="display:flex; flex-direction:column; gap:0.75rem; text-align:center; font-size:0.9rem;">
+      <p style="color:var(--text-muted)">Don't have an account? <a href="{% url 'accounts:signup' %}" style="color:var(--primary-light); font-weight:600">Sign up free</a></p>
+      <a href="/accounts/password-reset/" style="color:var(--text-dim); font-size:0.85rem">Forgot password?</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
