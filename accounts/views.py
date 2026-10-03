@@ -23,7 +23,11 @@ class UserLoginView(View):
             auth_login(request, form.get_user())
             request.session.pop('guest_search_count', None)
             request.session.pop('show_auth_modal', None)
-            return redirect('home')
+            next_url = request.GET.get('next') or request.POST.get('next') or 'home'
+            from django.utils.http import url_has_allowed_host_and_scheme
+            if not url_has_allowed_host_and_scheme(url=next_url, allowed_hosts={request.get_host()}):
+                next_url = 'home'
+            return redirect(next_url)
         try:
             return render(request, 'accounts/login.html', {'form': form})
         except Exception:
@@ -50,7 +54,11 @@ class UserSignupView(View):
             auth_login(request, user)
             request.session.pop('guest_search_count', None)
             request.session.pop('show_auth_modal', None)
-            return redirect('home')
+            next_url = request.GET.get('next') or request.POST.get('next') or 'home'
+            from django.utils.http import url_has_allowed_host_and_scheme
+            if not url_has_allowed_host_and_scheme(url=next_url, allowed_hosts={request.get_host()}):
+                next_url = 'home'
+            return redirect(next_url)
         try:
             return render(request, 'accounts/signup.html', {'form': form})
         except Exception:

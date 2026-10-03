@@ -128,10 +128,16 @@ window.ShopGPT.toast = function(message, type = 'info', duration = 4000) {
 // ─── Smooth Scroll for Anchor Links ──────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(link => {
   link.addEventListener('click', (e) => {
-    const target = document.querySelector(link.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const href = link.getAttribute('href');
+    if (href === '#') return;
+    try {
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (err) {
+      console.warn('Invalid selector in anchor link:', href, err);
     }
   });
 });

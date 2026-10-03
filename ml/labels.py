@@ -18,8 +18,8 @@ import numpy as np
 import pandas as pd
 
 # Configurable thresholds (can be overridden in tests or settings)
-GREAT_DEAL_THRESHOLD = 0.85   # <= 85% of median  → great deal
-OVERPRICED_THRESHOLD = 1.15   # > 115% of median  → overpriced
+GREAT_DEAL_THRESHOLD = 0.85   # great deal
+OVERPRICED_THRESHOLD = 1.15   # overpriced
 
 
 def assign_deal_labels(df: pd.DataFrame) -> pd.Series:

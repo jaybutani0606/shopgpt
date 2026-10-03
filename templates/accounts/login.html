@@ -9,7 +9,7 @@
     <h1 class="auth-card__title">Welcome back</h1>
     <p class="auth-card__subtitle">Log in to your ShopGPT account</p>
 
-    <form method="post" action="{% url 'accounts:login' %}">
+    <form method="post" action="">
       {% csrf_token %}
       {% include "partials/form_field.html" with label="Username" id="id_username" type="text" name="username" value=form.username.value placeholder="your_username" required=True errors=form.username.errors attrs='autocomplete="username"' %}
       {% include "partials/form_field.html" with label="Password" id="id_password" type="password" name="password" placeholder="••••••••" required=True errors=form.password.errors attrs='autocomplete="current-password"' %}

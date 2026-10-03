@@ -846,6 +846,7 @@ h3 { font-size: clamp(1.15rem, 2.5vw, 1.4rem); }
   background: linear-gradient(135deg, var(--primary-glow), transparent 60%);
   opacity: 0;
   transition: opacity var(--transition);
+  pointer-events: none;
 }
 
 .rec-card:hover {

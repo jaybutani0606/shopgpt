@@ -7,18 +7,29 @@
     <h1 class="auth-card__title">Join ShopGPT</h1>
     <p class="auth-card__subtitle">Create your free account to unlock search history and AI features</p>
 
-    <form method="post" action="{% url 'accounts:signup' %}">
+    <form method="post" action="">
       {% csrf_token %}
 
       {% include "partials/form_field.html" with label="Username" id="id_username" type="text" name="username" value=form.username.value placeholder="choose_a_username" required=True errors=form.username.errors attrs='autocomplete="username"' %}
       {% include "partials/form_field.html" with label="Email (optional)" id="id_email" type="email" name="email" value=form.email.value placeholder="you@example.com" required=False errors=form.email.errors attrs='autocomplete="email"' %}
       {% include "partials/form_field.html" with label="Password" id="id_password1" type="password" name="password1" placeholder="••••••••" required=True errors=form.password1.errors attrs='autocomplete="new-password"' %}
+      
+      <div class="password-requirements" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; margin-top: -0.5rem; line-height: 1.4;">
+        Password requirements:
+        <ul style="margin: 0.25rem 0 0 1.25rem; padding: 0; list-style-type: disc;">
+          <li>Must be at least 8 characters long.</li>
+          <li>Must not be too similar to your username or email.</li>
+          <li>Must not be a commonly used password.</li>
+          <li>Must not be entirely numeric.</li>
+        </ul>
+      </div>
+
       {% include "partials/form_field.html" with label="Confirm Password" id="id_password2" type="password" name="password2" placeholder="••••••••" required=True errors=form.password2.errors attrs='autocomplete="new-password"' %}
 
       <div class="form-group" style="flex-direction:row; align-items:center; gap:0.75rem;">
-        <input id="id_terms" type="checkbox" name="terms" required style="width:1.1rem;height:1.1rem;accent-color:var(--primary);" />
-        <label for="id_terms" style="font-size:0.85rem; color:var(--text-muted); cursor:pointer;">I agree to the <a href="#" style="color:var(--primary-light)">Terms of Service</a></label>
-        {% for error in form.terms.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+        <input id="id_terms_accepted" type="checkbox" name="terms_accepted" required style="width:1.1rem;height:1.1rem;accent-color:var(--primary);" />
+        <label for="id_terms_accepted" style="font-size:0.85rem; color:var(--text-muted); cursor:pointer;">I agree to the <a href="#" style="color:var(--primary-light)">Terms of Service</a></label>
+        {% for error in form.terms_accepted.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
       </div>
 
       {% if form.non_field_errors %}

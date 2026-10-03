@@ -92,6 +92,24 @@ class UserLoginViewTests(TestCase):
         self.assertRedirects(response, reverse('home'))
         self.assertEqual(int(self.client.session['_auth_user_id']), self.user.id)
 
+    def test_login_post_redirects_to_next(self):
+        login_url = reverse('accounts:login')
+        next_url = '/products/history/'
+        response = self.client.post(f"{login_url}?next={next_url}", {
+            'username': 'TestUser',
+            'password': 'password123'
+        })
+        self.assertRedirects(response, next_url)
+
+    def test_login_post_redirects_to_next_unsafe_ignored(self):
+        login_url = reverse('accounts:login')
+        next_url = 'http://attacker.com/steal'
+        response = self.client.post(f"{login_url}?next={next_url}", {
+            'username': 'TestUser',
+            'password': 'password123'
+        })
+        self.assertRedirects(response, reverse('home'))
+
     def test_login_post_fail(self):
         response = self.client.post(reverse('accounts:login'), {
             'username': 'TestUser',
@@ -126,6 +144,30 @@ class UserSignupViewTests(TestCase):
         self.assertEqual(self.User.objects.filter(username='NewUser').count(), 1)
         new_user = self.User.objects.get(username='NewUser')
         self.assertEqual(int(self.client.session['_auth_user_id']), new_user.id)
+
+    def test_signup_post_redirects_to_next(self):
+        signup_url = reverse('accounts:signup')
+        next_url = '/products/history/'
+        response = self.client.post(f"{signup_url}?next={next_url}", {
+            'username': 'NewUserSignUp2',
+            'email': 'newsignup2@example.com',
+            'password1': 'StrongPass123!',
+            'password2': 'StrongPass123!',
+            'terms_accepted': True
+        })
+        self.assertRedirects(response, next_url)
+
+    def test_signup_post_redirects_to_next_unsafe_ignored(self):
+        signup_url = reverse('accounts:signup')
+        next_url = 'http://attacker.com/steal'
+        response = self.client.post(f"{signup_url}?next={next_url}", {
+            'username': 'NewUserSignUp3',
+            'email': 'newsignup3@example.com',
+            'password1': 'StrongPass123!',
+            'password2': 'StrongPass123!',
+            'terms_accepted': True
+        })
+        self.assertRedirects(response, reverse('home'))
 
     def test_signup_post_mismatched_passwords(self):
         response = self.client.post(reverse('accounts:signup'), {

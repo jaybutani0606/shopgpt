@@ -66,6 +66,7 @@ class LoginForm(AuthenticationForm):
                 # Successful login clears rate limit records
                 cache.delete(attempts_key)
                 cache.delete(lockout_key)
+        return self.cleaned_data
 
 from django.contrib.auth.forms import UserCreationForm
 
